@@ -5,7 +5,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: http://keycloak:8080/realms/fitness-oauth2/protocol/openid-connect/certs
+          jwk-set-uri: http://keycloak:8080/realms/todo-oauth2/protocol/openid-connect/certs
   cloud:
     gateway:
       routes:
@@ -14,15 +14,10 @@ spring:
           predicates:
             - Path=/api/users/**
 
-        - id: activity-service
-          uri: lb://ACTIVITY-SERVICE
+        - id: todo-service
+          uri: lb://TODO-SERVICE
           predicates:
-            - Path=/api/activities/**
-
-        - id: ai-service
-          uri: lb://AI-SERVICE
-          predicates:
-            - Path=/api/recommendations/**
+            - Path=/api/todos/**
 
 server:
   port: 8080

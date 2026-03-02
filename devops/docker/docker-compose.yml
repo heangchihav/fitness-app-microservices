@@ -1,51 +1,25 @@
-version: '3.8'
-
 services:
-  # PostgreSQL Database for User Service
+  # PostgreSQL Database for User and Todo Services
   postgres:
     image: postgres:15-alpine
-    container_name: fitness-postgres
+    container_name: todo-postgres
     environment:
-      POSTGRES_DB: fitness_user_db
+      POSTGRES_DB: todo_user_db
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
     networks:
-      - fitness-network
-
-  # MongoDB for Activity and AI Services
-  mongodb:
-    image: mongo:7.0
-    container_name: fitness-mongodb
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongodb_data:/data/db
-    networks:
-      - fitness-network
-
-  # RabbitMQ Message Broker
-  rabbitmq:
-    image: rabbitmq:3.12-management-alpine
-    container_name: fitness-rabbitmq
-    environment:
-      RABBITMQ_DEFAULT_USER: admin
-      RABBITMQ_DEFAULT_PASS: admin
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-    volumes:
-      - rabbitmq_data:/var/lib/rabbitmq
-    networks:
-      - fitness-network
+      - todo-network
+    restart: unless-stopped
 
   # Keycloak OAuth2/OIDC Provider
   keycloak:
     image: quay.io/keycloak/keycloak:latest
-    container_name: fitness-keycloak
+    container_name: todo-keycloak
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
@@ -56,139 +30,116 @@ services:
     volumes:
       - keycloak_data:/opt/keycloak/data
     networks:
-      - fitness-network
+      - todo-network
     command:
       - start-dev
+    restart: unless-stopped
 
   # Eureka Service Discovery
   eureka:
     build:
       context: ../../backend/infrastructure/eureka
       dockerfile: Dockerfile
-    container_name: fitness-eureka
+    container_name: todo-eureka
     ports:
       - "8761:8761"
     networks:
-      - fitness-network
+      - todo-network
     depends_on:
       - postgres
-      - mongodb
-      - rabbitmq
       - keycloak
     environment:
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka:8761/eureka/
+    restart: unless-stopped
 
   # Config Server
   configserver:
     build:
       context: ../../backend/infrastructure/configserver
       dockerfile: Dockerfile
-    container_name: fitness-configserver
+    container_name: todo-configserver
     ports:
       - "8888:8888"
     networks:
-      - fitness-network
+      - todo-network
     depends_on:
       - eureka
     environment:
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka:8761/eureka/
+    restart: unless-stopped
 
   # User Service
   userservice:
     build:
       context: ../../backend/infrastructure/userservice
       dockerfile: Dockerfile
-    container_name: fitness-userservice
+    container_name: todo-userservice
     ports:
       - "8081:8081"
     networks:
-      - fitness-network
+      - todo-network
     depends_on:
       - postgres
       - eureka
       - configserver
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/fitness_user_db
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/todo_user_db
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka:8761/eureka/
+      EUREKA_CLIENT_REGISTER_WITH_EUREKA: true
+      EUREKA_CLIENT_FETCH_REGISTRY: true
       SPRING_CONFIG_IMPORT: optional:configserver:http://configserver:8888
+    restart: unless-stopped
 
-  # Activity Service
-  activityservice:
+  # Todo List Service
+  todolistservice:
     build:
-      context: ../../backend/services/activityservice
+      context: ../../backend/services/todolistservice
       dockerfile: Dockerfile
-    container_name: fitness-activityservice
+    container_name: todo-todolistservice
     ports:
       - "8082:8082"
     networks:
-      - fitness-network
+      - todo-network
     depends_on:
-      - mongodb
+      - postgres
       - eureka
       - configserver
-      - rabbitmq
     environment:
-      SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/fitness_activity_db
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/todolist_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka:8761/eureka/
+      EUREKA_CLIENT_REGISTER_WITH_EUREKA: true
+      EUREKA_CLIENT_FETCH_REGISTRY: true
       SPRING_CONFIG_IMPORT: optional:configserver:http://configserver:8888
-      SPRING_RABBITMQ_HOST: rabbitmq
-      SPRING_RABBITMQ_PORT: 5672
-      SPRING_RABBITMQ_USERNAME: admin
-      SPRING_RABBITMQ_PASSWORD: admin
-
-  # AI Service
-  aiservice:
-    build:
-      context: ../../backend/services/aiservice
-      dockerfile: Dockerfile
-    container_name: fitness-aiservice
-    ports:
-      - "8083:8083"
-    networks:
-      - fitness-network
-    depends_on:
-      - mongodb
-      - eureka
-      - configserver
-      - rabbitmq
-    environment:
-      SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/fitness_ai_db
-      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka:8761/eureka/
-      SPRING_CONFIG_IMPORT: optional:configserver:http://configserver:8888
-      SPRING_RABBITMQ_HOST: rabbitmq
-      SPRING_RABBITMQ_PORT: 5672
-      SPRING_RABBITMQ_USERNAME: admin
-      SPRING_RABBITMQ_PASSWORD: admin
+    restart: unless-stopped
 
   # API Gateway
   gateway:
     build:
       context: ../../backend/infrastructure/gateway
       dockerfile: Dockerfile
-    container_name: fitness-gateway
+    container_name: todo-gateway
     ports:
       - "8080:8080"
     networks:
-      - fitness-network
+      - todo-network
     depends_on:
       - eureka
       - configserver
-      - userservice
-      - activityservice
-      - aiservice
+      - keycloak
     environment:
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://eureka:8761/eureka/
       SPRING_CONFIG_IMPORT: optional:configserver:http://configserver:8888
+    restart: unless-stopped
 
 volumes:
   postgres_data:
-  mongodb_data:
-  rabbitmq_data:
   keycloak_data:
 
 
 networks:
-  fitness-network:
+  todo-network:
     driver: bridge

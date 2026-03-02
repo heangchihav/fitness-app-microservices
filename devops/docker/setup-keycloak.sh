@@ -12,9 +12,9 @@ curl -X POST "http://localhost:8181/admin/realms" \
   -H "Authorization: Bearer $ADMIN_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
-    "realm": "fitness-oauth2",
+    "realm": "todo-oauth2",
     "enabled": true,
-    "displayName": "Fitness OAuth2",
+    "displayName": "Todo OAuth2",
     "loginTheme": "keycloak",
     "registrationAllowed": true,
     "rememberMe": true,
@@ -30,7 +30,7 @@ echo "Realm created with username/password registration"
 sleep 3
 
 # Create USER role
-curl -X POST "http://localhost:8181/admin/realms/fitness-oauth2/roles" \
+curl -X POST "http://localhost:8181/admin/realms/todo-oauth2/roles" \
   -H "Authorization: Bearer $ADMIN_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -38,13 +38,13 @@ curl -X POST "http://localhost:8181/admin/realms/fitness-oauth2/roles" \
     "description": "Regular user role",
     "composite": false,
     "clientRole": false,
-    "containerId": "fitness-oauth2"
+    "containerId": "todo-oauth2"
   }'
 
 echo "USER role created"
 
 # Create client
-curl -X POST "http://localhost:8181/admin/realms/fitness-oauth2/clients" \
+curl -X POST "http://localhost:8181/admin/realms/todo-oauth2/clients" \
   -H "Authorization: Bearer $ADMIN_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
@@ -99,6 +99,6 @@ echo "Client created with username/password support"
 
 # Test the realm endpoint
 echo "Testing realm endpoint..."
-curl -s "http://localhost:8181/realms/fitness-oauth2/.well-known/openid-configuration" | jq -r '.issuer'
+curl -s "http://localhost:8181/realms/todo-oauth2/.well-known/openid-configuration" | jq -r '.issuer'
 
 echo "Setup complete!"
