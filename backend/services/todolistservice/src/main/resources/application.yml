@@ -3,3 +3,20 @@ spring:
     name: todo-service
   config:
     import: optional:configserver:http://configserver:8888
+
+server:
+  port: 8082
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+  info:
+    env:
+      enabled: true
+    build:
+      enabled: true

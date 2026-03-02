@@ -3,3 +3,19 @@ spring:
     name: api-gateway
   config:
     import: optional:configserver:http://configserver:8888
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,gateway
+  endpoint:
+    health:
+      show-details: always
+  info:
+    env:
+      enabled: true
+    build:
+      enabled: true
+  gateway:
+    enabled: true
