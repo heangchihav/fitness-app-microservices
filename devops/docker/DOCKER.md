@@ -11,7 +11,6 @@ This document explains how to run backend services using Docker.
 - **User Service** (Port 8081) - User management with PostgreSQL
 - **Todo Service** (Port 8082) - Todo management with PostgreSQL
 - **Config Server** (Port 8888) - Centralized configuration
-- **Eureka Server** (Port 8761) - Service discovery
 - **PostgreSQL** (Port 5432) - Database for User and Todo Services
 - **Keycloak** (Port 8181) - OAuth2/OIDC authentication provider
 
@@ -40,10 +39,9 @@ This document explains how to run backend services using Docker.
 ## Service Dependencies
 Services start in this order:
 1. Infrastructure (PostgreSQL, Keycloak)
-2. Eureka (Service Discovery)
-3. Config Server
-4. Business Services (User, Todo)
-5. API Gateway
+2. Config Server
+3. Business Services (User, Todo)
+4. API Gateway
 
 ## Health Checks
 All services include health checks. You can monitor service status:
@@ -53,7 +51,6 @@ docker-compose ps
 
 ## Access Points
 - **API Gateway**: http://localhost:8080
-- **Eureka Dashboard**: http://localhost:8761
 - **Config Server**: http://localhost:8888
 - **Keycloak Admin**: http://localhost:8181/admin (admin/admin)
 

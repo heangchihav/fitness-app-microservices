@@ -9,7 +9,6 @@ This project demonstrates a clean microservices architecture with the following 
 ### Backend Services
 - **API Gateway** - Single entry point with routing and security
 - **Config Server** - Centralized configuration management
-- **Eureka Server** - Service discovery and registration
 - **User Service** - User management and authentication
 - **Todo Service** - Todo CRUD operations
 
@@ -49,7 +48,6 @@ This project demonstrates a clean microservices architecture with the following 
 3. **Access the Application:**
    - Frontend: http://localhost:5173
    - API Gateway: http://localhost:8080
-   - Eureka: http://localhost:8761
    - Config Server: http://localhost:8888
    - Keycloak: http://localhost:8181
 
@@ -68,7 +66,6 @@ This project demonstrates a clean microservices architecture with the following 
 - User management service
 
 ### Microservices Features
-- Service discovery with Eureka
 - Centralized configuration
 - API Gateway routing
 - Health checks and monitoring
@@ -103,7 +100,6 @@ This project demonstrates a clean microservices architecture with the following 
 │   ├── infrastructure/
 │   │   ├── gateway/          # API Gateway
 │   │   ├── configserver/     # Config Server
-│   │   ├── eureka/          # Service Discovery
 │   │   └── userservice/     # User Management
 │   └── services/
 │       └── todolistservice/  # Todo Service
@@ -176,8 +172,6 @@ The application uses OAuth2 with PKCE flow:
 - JWT tokens used for API authentication
 
 ## Monitoring
-
-- Eureka Dashboard: http://localhost:8761
 - Service health checks available
 - Logs accessible via Docker containers
 

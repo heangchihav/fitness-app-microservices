@@ -10,19 +10,13 @@ spring:
     gateway:
       routes:
         - id: user-service
-          uri: lb://USER-SERVICE
+          uri: http://userservice:8081
           predicates:
             - Path=/api/users/**
-
         - id: todo-service
-          uri: lb://TODO-SERVICE
+          uri: http://todolistservice:8082
           predicates:
             - Path=/api/todos/**
 
 server:
   port: 8080
-
-eureka:
-  client:
-    serviceUrl:
-      defaultZone: http://eureka:8761/eureka/

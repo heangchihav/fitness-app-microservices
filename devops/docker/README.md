@@ -31,7 +31,6 @@ docker compose down -v
 - **API Gateway**: http://localhost:8080 (Reactive Gateway with OAuth2)
 - **User Service**: http://localhost:8081
 - **Todo Service**: http://localhost:8082
-- **Eureka Dashboard**: http://localhost:8761
 - **Config Server**: http://localhost:8888
 - **Keycloak**: http://localhost:8181
 - **PostgreSQL**: localhost:5432
